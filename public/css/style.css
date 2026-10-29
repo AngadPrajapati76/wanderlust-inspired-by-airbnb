@@ -7,7 +7,9 @@ body {
 
 .container {
     flex: 1;
+    min-height: calc(100vh - 13rem);
 }
+
 
 .navbar {
     height: 5rem;
@@ -133,3 +135,4 @@ label {
     height: 300px;
     width: 90vh;
 }
+

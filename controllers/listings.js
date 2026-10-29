@@ -1,11 +1,59 @@
+const ExpressError = require("../utils/ExpressError.js");
 const Listing = require("../models/listing.js");
 const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
 const mapToken = process.env.MAP_TOKEN;
 const geocodingClient = mbxGeocoding({ accessToken: mapToken });
 
 module.exports.index = async (req, res) => {
-    const allListings = await Listing.find({});
-    res.render("listing/index.ejs", { allListings });
+    const { location, category, minPrice, maxPrice } = req.query;
+
+    let filter = {};
+
+    if (location && location.trim() !== "") {
+        filter.$or = [
+            {
+                title: {
+                    $regex: location.trim(),
+                    $options: "i"
+                }
+            },
+            {
+                location: {
+                    $regex: location.trim(),
+                    $options: "i"
+                }
+            },
+            {
+                country: {
+                    $regex: location.trim(),
+                    $options: "i"
+                }
+            }
+        ];
+    }
+
+    if (category && category.trim() !== "") {
+        filter.category = category.trim();
+    }
+
+    if (minPrice || maxPrice) {
+        filter.price = {};
+
+        if (minPrice) {
+            filter.price.$gte = Number(minPrice);
+        }
+
+        if (maxPrice) {
+            filter.price.$lte = Number(maxPrice);
+        }
+    }
+
+    const allListings = await Listing.find(filter);
+
+    res.render("listing/index.ejs", {
+        allListings,
+        query: req.query
+    });
 };
 
 module.exports.renderNewForm = (req, res) => {
@@ -34,7 +82,7 @@ module.exports.createListing = async (req, res, next) => {
         query: req.body.listing.location,
         limit: 1,
     })
-    .send();
+        .send();
 
     // let {title,description,image,price,country,location} = req.body;
     let url = req.file.path;

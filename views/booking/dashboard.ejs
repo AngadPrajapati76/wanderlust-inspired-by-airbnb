@@ -1,0 +1,326 @@
+<% layout("/layouts/boilerplate") -%>
+
+<div class="container mt-4 mb-5">
+
+  <h2 class="mb-4">Owner Dashboard</h2>
+
+  <!-- Quick Navigation -->
+  <div class="d-flex flex-wrap gap-2 mb-4">
+    <a href="/owner/reservations" class="btn btn-dark">
+      <i class="fa-regular fa-calendar-check"></i>
+      View Reservations
+    </a>
+
+    <a href="/listings/new" class="btn btn-outline-dark">
+      <i class="fa-solid fa-plus"></i>
+      Add New Property
+    </a>
+
+    <a href="/listings" class="btn btn-outline-dark">
+      <i class="fa-solid fa-house"></i>
+      Explore Properties
+    </a>
+  </div>
+
+  <!-- First Row: Statistics (Unchanged) -->
+  <div class="row g-3 mb-3">
+
+    <div class="col-md-4">
+      <div class="card shadow-sm h-100 p-3">
+        <h6>Total Reservations</h6>
+        <h3><%= totalBookings %></h3>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card shadow-sm h-100 p-3">
+        <h6>Confirmed Bookings</h6>
+        <h3 class="text-success"><%= confirmedBookings %></h3>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card shadow-sm h-100 p-3">
+        <h6>Cancelled Bookings</h6>
+        <h3 class="text-danger"><%= cancelledBookings %></h3>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Last Two Rows + Compact Chart -->
+  <div class="row g-3 align-items-stretch">
+
+    <!-- Left: Narrower Statistics -->
+    <div class="col-lg-8">
+      <div class="row g-3">
+
+        <!-- Confirmed Booking Value -->
+        <div class="col-md-6">
+          <div class="card shadow-sm h-100 p-3">
+            <h6>Confirmed Booking Value</h6>
+            <h3>₹<%= Number(totalEarnings).toLocaleString("en-IN") %></h3>
+            <small class="text-muted">
+              Value of confirmed bookings, not verified payments
+            </small>
+          </div>
+        </div>
+
+        <!-- My Properties -->
+        <div class="col-md-6">
+          <div class="card shadow-sm h-100 p-3">
+            <h6>My Properties</h6>
+            <h3><%= totalProperties %></h3>
+          </div>
+        </div>
+
+        <!-- Upcoming Bookings -->
+        <div class="col-md-6">
+          <div class="card shadow-sm h-100 p-3">
+            <h6>Upcoming Bookings</h6>
+            <h3 class="text-primary"><%= upcomingBookings %></h3>
+          </div>
+        </div>
+
+        <!-- Past Bookings -->
+        <div class="col-md-6">
+          <div class="card shadow-sm h-100 p-3">
+            <h6>Past Bookings</h6>
+            <h3 class="text-secondary"><%= pastBookings %></h3>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Right: Smaller Booking Chart -->
+    <div class="col-lg-4">
+      <div class="card shadow-sm h-100 dashboard-chart-card">
+        <div class="card-body p-3">
+
+          <h6 class="text-center mb-2">Booking Status Overview</h6>
+
+          <% if (totalBookings === 0) { %>
+
+          <p class="text-muted text-center mt-4 mb-0">
+            No booking data available yet.
+          </p>
+
+          <% } else { %>
+
+          <div class="chart-container">
+            <canvas id="bookingStatusChart"></canvas>
+          </div>
+
+          <% } %>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Upcoming Reservations -->
+  <div class="mt-5">
+
+    <h4 class="mb-3">Upcoming Reservations</h4>
+
+    <% if (upcomingBookingDetails.length === 0) { %>
+
+    <div class="alert alert-info">
+      No upcoming confirmed reservations.
+    </div>
+
+    <% } else { %>
+
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover align-middle">
+
+        <thead class="table-dark">
+          <tr>
+            <th>Property</th>
+            <th>Guest</th>
+            <th>Check-in</th>
+            <th>Check-out</th>
+            <th>Total Price</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% upcomingBookingDetails.forEach(booking => { %>
+          <tr>
+            <td>
+              <% if (booking.listing) { %>
+              <a href="/listings/<%= booking.listing._id %>">
+                <%= booking.listing.title %>
+              </a>
+              <% } else { %>
+              Property unavailable
+              <% } %>
+            </td>
+
+            <td>
+              <%= booking.user
+                    ? booking.user.username
+                    : "User unavailable" %>
+            </td>
+
+            <td>
+              <%= new Date(booking.checkIn).toLocaleDateString("en-IN") %>
+            </td>
+
+            <td>
+              <%= new Date(booking.checkOut).toLocaleDateString("en-IN") %>
+            </td>
+
+            <td>
+              ₹<%= Number(booking.totalPrice).toLocaleString("en-IN") %>
+            </td>
+          </tr>
+          <% }); %>
+        </tbody>
+
+      </table>
+    </div>
+
+    <% } %>
+
+  </div>
+
+  <!-- Property Booking Summary -->
+  <div class="mt-5">
+
+    <h4 class="mb-3">Property Booking Summary</h4>
+
+    <% if (propertyStats.length === 0) { %>
+
+    <div class="alert alert-info">
+      You haven't listed any properties yet.
+    </div>
+
+    <% } else { %>
+
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover align-middle">
+
+        <thead class="table-dark">
+          <tr>
+            <th>Property</th>
+            <th>Total Bookings</th>
+            <th>Confirmed</th>
+            <th>Cancelled</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% propertyStats.forEach(property => { %>
+          <tr>
+            <td>
+              <a href="/listings/<%= property.listingId %>">
+                <%= property.title %>
+              </a>
+            </td>
+
+            <td><%= property.totalBookings %></td>
+
+            <td>
+              <span class="badge bg-success">
+                <%= property.confirmedBookings %>
+              </span>
+            </td>
+
+            <td>
+              <span class="badge bg-danger">
+                <%= property.cancelledBookings %>
+              </span>
+            </td>
+          </tr>
+          <% }); %>
+        </tbody>
+
+      </table>
+    </div>
+
+    <% } %>
+
+  </div>
+
+</div>
+
+<!-- Dashboard Styling -->
+<style>
+  .dashboard-chart-card {
+    border-radius: 10px;
+    border-color: #dedede;
+  }
+
+  .chart-container {
+    position: relative;
+    width: 100%;
+    max-width: 230px;
+    height: 190px;
+    margin: 0 auto;
+  }
+
+  @media (max-width: 991.98px) {
+    .chart-container {
+      max-width: 220px;
+      height: 180px;
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    .chart-container {
+      max-width: 200px;
+      height: 170px;
+    }
+  }
+</style>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const chartCanvas = document.getElementById("bookingStatusChart");
+
+    if (chartCanvas && typeof Chart !== "undefined") {
+      new Chart(chartCanvas, {
+        type: "doughnut",
+
+        data: {
+          labels: ["Confirmed", "Cancelled"],
+
+          datasets: [{
+            data: [
+              <%= confirmedBookings %>,
+              <%= cancelledBookings %>
+            ],
+            backgroundColor: ["#198754", "#dc3545"],
+            borderWidth: 0,
+            hoverOffset: 5
+          }]
+        },
+
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: {
+                boxWidth: 10,
+                padding: 10
+              }
+            },
+
+            tooltip: {
+              enabled: true
+            }
+          }
+        }
+      });
+    }
+  });
+</script>

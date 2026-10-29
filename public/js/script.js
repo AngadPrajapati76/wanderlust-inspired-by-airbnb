@@ -15,4 +15,22 @@
       form.classList.add('was-validated')
     }, false)
   })
-})()
+});
+function togglePriceDropdown() {
+    const dropdown = document.getElementById("priceDropdown");
+    dropdown.classList.toggle("show");
+}
+
+document.addEventListener("click", function (event) {
+    const dropdown = document.getElementById("priceDropdown");
+    const button = document.querySelector(".price-dropdown-btn");
+
+    if (
+        dropdown &&
+        button &&
+        !dropdown.contains(event.target) &&
+        !button.contains(event.target)
+    ) {
+        dropdown.classList.remove("show");
+    }
+});

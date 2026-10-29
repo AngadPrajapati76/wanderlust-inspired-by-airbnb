@@ -1,0 +1,86 @@
+<% layout("/layouts/boilerplate") -%>
+
+<div class="container mt-4 mb-5">
+  <h2 class="mb-4">Owner Reservations</h2>
+
+  <% if (bookings.length===0) { %>
+  <div class="alert alert-info">
+    You don't have any reservations yet.
+  </div>
+  <% } else { %>
+
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th>Property</th>
+          <th>Guest</th>
+          <th>Guest Email</th>
+          <th>Check-in</th>
+          <th>Check-out</th>
+          <th>Nights</th>
+          <th>Total Price</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% bookings.forEach(booking=> { %>
+        <tr>
+          <td>
+            <% if (booking.listing) { %>
+            <a href="/listings/<%= booking.listing._id %>">
+              <%= booking.listing.title %>
+            </a>
+            <% } else { %>
+            Property deleted
+            <% } %>
+          </td>
+
+          <td>
+            <%= booking.user ? booking.user.username : "User unavailable" %>
+          </td>
+
+          <td>
+            <%= booking.user && booking.user.email ? booking.user.email : "Not available" %>
+          </td>
+
+          <td>
+            <%= new Date(booking.checkIn).toLocaleDateString("en-IN") %>
+          </td>
+
+          <td>
+            <%= new Date(booking.checkOut).toLocaleDateString("en-IN") %>
+          </td>
+
+          <td>
+            <%= Math.round( (new Date(booking.checkOut) - new Date(booking.checkIn)) / (1000 * 60 * 60 * 24) ) %>
+          </td>
+
+          <td>₹<%= booking.totalPrice %>
+          </td>
+
+
+          <td>
+            <% if (booking.status === "confirmed") { %>
+            <span class="badge bg-success">Confirmed</span>
+            <% } else if (booking.status === "cancelled") { %>
+            <span class="badge bg-danger">Cancelled</span>
+            <div class="small text-muted mt-1">
+              Guest cancelled this reservation
+            </div>
+            <% } else { %>
+            <span class="badge bg-secondary">
+              <%= booking.status %>
+            </span>
+            <% } %>
+          </td>
+
+        </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+
+  <% } %>
+</div>

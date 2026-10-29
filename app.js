@@ -1,3 +1,7 @@
+const dns = require("node:dns");
+
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
+
 require("dotenv").config();
 
 const express = require("express");
@@ -7,7 +11,6 @@ const mongoose  = require("mongoose");
 const path = require("path");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
-const { wrap } = require("module");
 const session = require("express-session");
 const MongoStore = require("connect-mongo").default;
 const flash = require("connect-flash");
@@ -18,7 +21,9 @@ const User = require("./models/user.js");
 const listingRouter = require("./routes/listing.js");
 const reviewRouter = require("./routes/review.js");
 const userRouter = require("./routes/user.js");
-const user = require("./models/user.js");
+const bookingRouter = require("./routes/booking.js");
+const wishlistRouter = require("./routes/wishlist.js");
+
 
 
 const dbUrl = process.env.ATLASDB_URL;
@@ -37,6 +42,7 @@ app.set("view engine","ejs");
 app.set("views",path.join(__dirname, "views"));
 app.use(methodOverride("_method"));
 app.use(express.urlencoded({extended:true}));
+app.use(express.json());
 app.use(express.static(path.join(__dirname, "/public")));
 
 const store = MongoStore.create({
@@ -47,7 +53,7 @@ const store = MongoStore.create({
     touchAfter: 24*3600,
 });
 
-store.on("error", () => {
+store.on("error", (err) => {
     console.log("ERROR in MONGO SESSION STORE", err);
 })
 
@@ -93,6 +99,8 @@ app.use((req,res,next) => {
 app.use("/listings", listingRouter);
 app.use("/listings/:id/reviews", reviewRouter);
 app.use("/", userRouter);
+app.use("/", bookingRouter);
+app.use("/", wishlistRouter);
 
 app.all("/{*splat}", (req,res,next) => {
     next(new ExpressError(404, "Page not found!"));

@@ -1,52 +1,474 @@
 <% layout("/layouts/boilerplate") %>
 
-  <body>
-    <div class="row">
-      <div class="col-8 offset-2">
-        <form action="/listings" method="post" novalidate class="needs-validation" enctype="multipart/form-data">
-          <br>
-          <h3>Create a new Listing</h3><br>
-          <div class="mb-3">
-            <label for="title" class="form-label">Title</label>
-            <input type="text" name="listing[title]" placeholder="Enter a catchy title" class="form-control" required>
-            <div class="valid-feedback">
-              Title Looks good
-            </div>
+<style>
+  .new-listing-page {
+    --listing-accent: #fe424d;
+    --listing-text: #222;
+    --listing-muted: #717171;
+    --listing-border: #e5e5e5;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 36px 24px 56px;
+    color: var(--listing-text);
+  }
+
+  .new-listing-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(420px, 1.1fr);
+    gap: clamp(28px, 5vw, 64px);
+    align-items: start;
+  }
+
+  .new-listing-intro {
+    position: sticky;
+    top: 100px;
+    padding: 20px 0;
+  }
+
+  .new-listing-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    color: var(--listing-accent);
+    font-size: 0.84rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .new-listing-intro h1 {
+    margin: 0 0 16px;
+    font-size: clamp(2rem, 4vw, 3.15rem);
+    line-height: 1.08;
+    font-weight: 700;
+    letter-spacing: -0.045em;
+  }
+
+  .new-listing-intro p {
+    max-width: 390px;
+    margin: 0;
+    color: var(--listing-muted);
+    font-size: 1.04rem;
+    line-height: 1.7;
+  }
+
+  .new-listing-benefits {
+    display: grid;
+    gap: 14px;
+    margin-top: 30px;
+  }
+
+  .new-listing-benefit {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    color: #444;
+    line-height: 1.5;
+  }
+
+  .new-listing-benefit-icon {
+    display: inline-flex;
+    flex: 0 0 38px;
+    width: 38px;
+    height: 38px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+    background: #fff0f1;
+    color: var(--listing-accent);
+  }
+
+  .new-listing-benefit strong {
+    display: block;
+    margin-bottom: 2px;
+    color: var(--listing-text);
+    font-size: 0.95rem;
+  }
+
+  .new-listing-benefit span {
+    display: block;
+    color: var(--listing-muted);
+    font-size: 0.88rem;
+  }
+
+  .new-listing-form-card {
+    min-width: 0;
+    padding: clamp(20px, 3vw, 34px);
+    border: 1px solid var(--listing-border);
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 12px 38px rgb(0 0 0 / 6%);
+  }
+
+  .new-listing-form-header {
+    margin-bottom: 26px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .new-listing-form-header h2 {
+    margin: 0 0 7px;
+    font-size: 1.45rem;
+    font-weight: 650;
+    letter-spacing: -0.025em;
+  }
+
+  .new-listing-form-header p {
+    margin: 0;
+    color: var(--listing-muted);
+    font-size: 0.93rem;
+    line-height: 1.5;
+  }
+
+  .new-listing-form .form-label {
+    margin-bottom: 8px;
+    font-size: 0.92rem;
+    font-weight: 600;
+  }
+
+  .new-listing-form .form-control,
+  .new-listing-form .form-select {
+    min-height: 48px;
+    border: 1px solid #d7d7d7;
+    border-radius: 10px;
+    background-color: #fff;
+    font-size: 0.95rem;
+    box-shadow: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .new-listing-form textarea.form-control {
+    min-height: 130px;
+    resize: vertical;
+  }
+
+  .new-listing-form .form-control:focus,
+  .new-listing-form .form-select:focus {
+    border-color: #777;
+    box-shadow: 0 0 0 3px rgb(0 0 0 / 6%);
+  }
+
+  .new-listing-form input[type="file"].form-control {
+    padding: 9px 10px;
+    min-height: 48px;
+    font-size: 0.88rem;
+  }
+
+  .new-listing-form input[type="file"]::file-selector-button {
+    margin: -4px 10px -4px -5px;
+    padding: 7px 11px;
+    border: 0;
+    border-radius: 7px;
+    background: #f3f3f3;
+    color: #333;
+    cursor: pointer;
+  }
+
+  .new-listing-form .form-text {
+    color: var(--listing-muted);
+    font-size: 0.82rem;
+  }
+
+  .new-listing-form .row {
+    --bs-gutter-x: 14px;
+  }
+
+  .add-btn {
+    width: 100%;
+    min-height: 48px;
+    margin-top: 4px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--listing-accent);
+    color: #fff;
+    font-weight: 650;
+    transition: transform 0.15s ease, background 0.2s ease;
+  }
+
+  .add-btn:hover,
+  .add-btn:focus-visible {
+    background: #e73540;
+    color: #fff;
+  }
+
+  .add-btn:active {
+    transform: translateY(1px);
+  }
+
+  @media (max-width: 991.98px) {
+    .new-listing-page {
+      max-width: 820px;
+      padding: 28px 20px 44px;
+    }
+
+    .new-listing-layout {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 20px;
+    }
+
+    .new-listing-intro {
+      position: static;
+      padding: 0;
+    }
+
+    .new-listing-intro h1 {
+      font-size: clamp(1.8rem, 5vw, 2.5rem);
+    }
+
+    .new-listing-intro p {
+      max-width: 650px;
+    }
+
+    .new-listing-benefits {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .new-listing-benefit {
+      gap: 9px;
+    }
+
+    .new-listing-benefit-icon {
+      flex-basis: 34px;
+      width: 34px;
+      height: 34px;
+    }
+
+    .new-listing-form-card {
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    .new-listing-page {
+      padding: 22px 14px 34px;
+    }
+
+    .new-listing-intro h1 {
+      font-size: 1.9rem;
+    }
+
+    .new-listing-intro p {
+      font-size: 0.94rem;
+      line-height: 1.6;
+    }
+
+    .new-listing-benefits {
+      display: none;
+    }
+
+    .new-listing-form-card {
+      padding: 20px 16px;
+      border-radius: 15px;
+      box-shadow: 0 6px 22px rgb(0 0 0 / 5%);
+    }
+
+    .new-listing-form-header {
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+    }
+
+    .new-listing-form-header h2 {
+      font-size: 1.25rem;
+    }
+
+    .new-listing-form .form-control,
+    .new-listing-form .form-select {
+      min-height: 46px;
+      font-size: 16px;
+    }
+
+    .new-listing-form textarea.form-control {
+      min-height: 115px;
+    }
+
+    .new-listing-form .row > [class*="col-"] {
+      width: 100%;
+    }
+
+    .add-btn {
+      min-height: 48px;
+    }
+  }
+</style>
+
+<main class="new-listing-page">
+  <div class="new-listing-layout">
+
+    <section class="new-listing-intro">
+      <span class="new-listing-eyebrow">
+        <i class="fa-solid fa-house" aria-hidden="true"></i>
+        Become a host
+      </span>
+
+      <h1>Share your space.<br>Welcome the world.</h1>
+
+      <p>
+        Create your listing with a few simple details. Add a clear description,
+        choose a category, and set a nightly price to help guests discover your place.
+      </p>
+
+      <div class="new-listing-benefits">
+        <div class="new-listing-benefit">
+          <span class="new-listing-benefit-icon">
+            <i class="fa-regular fa-image" aria-hidden="true"></i>
+          </span>
+          <div>
+            <strong>Show your space</strong>
+            <span>Upload a photo that helps guests picture their stay.</span>
           </div>
-          <div class="mb-3">
-            <label for="description" class="form-label">Description</label>
-            <textarea name="listing[description]" placeholder="" class="form-control" required></textarea>
-            <div class="invalid-feedback">
-              Please enter a short description.
-            </div>
+        </div>
+
+        <div class="new-listing-benefit">
+          <span class="new-listing-benefit-icon">
+            <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+          </span>
+          <div>
+            <strong>Help guests find you</strong>
+            <span>Add the location and country for your property.</span>
           </div>
-          <div class="mb-3">
-            <label for="image" class="form-label">Upload Listing Image</label>
-            <input type="file" name="listing[image]" placeholder="Upload listing image" class="form-control">
+        </div>
+
+        <div class="new-listing-benefit">
+          <span class="new-listing-benefit-icon">
+            <i class="fa-solid fa-tag" aria-hidden="true"></i>
+          </span>
+          <div>
+            <strong>Set your nightly price</strong>
+            <span>Choose a price that works for your listing.</span>
           </div>
-          <div class="row">
-            <div class="mb-3 col-md-4">
-              <label for="price" class="form-label">Price</label>
-              <input type="text" name="listing[price]" placeholder="1200" class="form-control" required>
-              <div class="invalid-feedback">
-                Price should be valid.
-              </div>
-            </div>
-            <div class="mb-3 col-md-8">
-              <label for="country" class="form-label">Country</label>
-              <input type="text" name="listing[country]" placeholder="India" class="form-control" required>
-              <div class="invalid-feedback">
-                Country should be valid.
-              </div>
-            </div>
-          </div>
-          <div class="mb-3">
-            <label for="location" class="form-label">Location</label>
-            <input type="text" name="listing[location]" placeholder="Lucknow, UP" class="form-control" required>
-          </div>
-          <button class="btn btn-dark add-btn">Add</button>
-          <br><br>
-        </form>
+        </div>
       </div>
-    </div>
-  </body>
+    </section>
+
+    <section class="new-listing-form-card">
+      <header class="new-listing-form-header">
+        <h2>Create a new listing</h2>
+        <p>Fill in the details below to publish your property.</p>
+      </header>
+
+      <form
+        action="/listings"
+        method="POST"
+        novalidate
+        class="needs-validation new-listing-form"
+        enctype="multipart/form-data"
+      >
+        <div class="mb-4">
+          <label for="title" class="form-label">Listing title</label>
+          <input
+            type="text"
+            id="title"
+            name="listing[title]"
+            placeholder="e.g. Cozy cottage by the beach"
+            class="form-control"
+            autocomplete="off"
+            required
+          >
+          <div class="valid-feedback">Looks good!</div>
+          <div class="invalid-feedback">Please enter a title for your listing.</div>
+        </div>
+
+        <div class="mb-4">
+          <label for="description" class="form-label">Description</label>
+          <textarea
+            id="description"
+            name="listing[description]"
+            placeholder="Describe the space, amenities, and what makes it special..."
+            class="form-control"
+            rows="4"
+            required
+          ></textarea>
+          <div class="invalid-feedback">Please enter a short description.</div>
+        </div>
+
+        <div class="mb-4">
+          <label for="image" class="form-label">Listing photo</label>
+          <input
+            type="file"
+            id="image"
+            name="listing[image]"
+            class="form-control"
+            accept="image/*"
+          >
+          <div class="form-text mt-2">Choose a clear image of your property.</div>
+        </div>
+
+        <div class="mb-4">
+          <label for="category" class="form-label">Category</label>
+          <select
+            name="listing[category]"
+            id="category"
+            class="form-select"
+            required
+          >
+            <option value="" selected disabled>Select a category</option>
+            <option value="Trending">Trending</option>
+            <option value="Rooms">Rooms</option>
+            <option value="Iconic Cities">Iconic Cities</option>
+            <option value="Mountains">Mountains</option>
+            <option value="Castles">Castles</option>
+            <option value="Amazing pools">Amazing pools</option>
+            <option value="Camping">Camping</option>
+            <option value="Farms">Farms</option>
+            <option value="Arctic">Arctic</option>
+            <option value="Creative spaces">Creative spaces</option>
+          </select>
+          <div class="invalid-feedback">Please select a category.</div>
+        </div>
+
+        <div class="row">
+          <div class="mb-4 col-md-4">
+            <label for="price" class="form-label">Price per night (₹)</label>
+            <input
+              type="number"
+              id="price"
+              name="listing[price]"
+              placeholder="1200"
+              class="form-control"
+              min="1"
+              step="1"
+              required
+            >
+            <div class="invalid-feedback">Enter a valid price greater than zero.</div>
+          </div>
+
+          <div class="mb-4 col-md-8">
+            <label for="country" class="form-label">Country</label>
+            <input
+              type="text"
+              id="country"
+              name="listing[country]"
+              placeholder="e.g. India"
+              class="form-control"
+              autocomplete="country-name"
+              required
+            >
+            <div class="invalid-feedback">Please enter the country.</div>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label for="location" class="form-label">Location</label>
+          <input
+            type="text"
+            id="location"
+            name="listing[location]"
+            placeholder="e.g. Lucknow, Uttar Pradesh"
+            class="form-control"
+            autocomplete="address-level2"
+            required
+          >
+          <div class="invalid-feedback">Please enter the property location.</div>
+        </div>
+
+        <button type="submit" class="btn add-btn">
+          <i class="fa-solid fa-plus me-2" aria-hidden="true"></i>
+          Create listing
+        </button>
+      </form>
+    </section>
+  </div>
+</main>

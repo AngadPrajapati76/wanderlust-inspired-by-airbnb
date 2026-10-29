@@ -1,0 +1,63 @@
+<% layout("/layouts/boilerplate") -%>
+
+<div class="container mt-4 mb-5">
+  <h2 class="mb-4">Notifications</h2>
+
+  <% if (notifications.length===0) { %>
+  <div class="alert alert-info">
+    You have no notifications yet.
+  </div>
+  <% } else { %>
+
+  <div class="list-group">
+    <% notifications.forEach(notification=> { %>
+    <div class="list-group-item py-3">
+      <div class="d-flex justify-content-between align-items-start gap-3">
+        <div>
+          <h5 class="mb-2">
+            <%= notification.message %>
+          </h5>
+
+          <% if ( notification.booking && notification.booking.listing ) { %>
+
+          <p class="mb-1">
+            <strong>Property:</strong>
+            <%= notification.booking.listing.title %>
+          </p>
+
+          <p class="mb-1">
+            <strong>Check-in:</strong>
+            <%= new Date( notification.booking.checkIn ).toLocaleDateString("en-IN") %>
+          </p>
+
+          <p class="mb-1">
+            <strong>Check-out:</strong>
+            <%= new Date( notification.booking.checkOut ).toLocaleDateString("en-IN") %>
+          </p>
+
+          <p class="mb-1">
+            <strong>Total:</strong>
+            ₹<%= notification.booking.totalPrice %>
+          </p>
+
+          <a href="/owner/reservations" class="btn btn-outline-dark btn-sm mt-2">
+            View Reservations
+          </a>
+
+          <% } else { %>
+          <p class="text-muted mb-1">
+            The associated booking or property is no longer available.
+          </p>
+          <% } %>
+        </div>
+
+        <small class="text-muted text-nowrap">
+          <%= new Date( notification.createdAt ).toLocaleDateString("en-IN") %>
+        </small>
+      </div>
+    </div>
+    <% }); %>
+  </div>
+
+  <% } %>
+</div>

@@ -1,57 +1,480 @@
 <style>
-  .search-btn{
-    background-color: #fe424d;
-    color: white;
-    width: 150px;
-    border-radius: 25px;
-    padding: 0 0.5rem 0 0.5rem;
-  }
-  .search-btn:hover{
-    background-color: #fe424d;
-    color: white;
-    width: 150px;
-    border-radius: 25px;
-    padding: 0 0.5rem 0 0.5rem;
-  }
-  .search-btn i {
-    display: inline;
-    margin-right: 0.5rem;
-  }
-  .search-inp{
-    border-radius: 25px;
-    padding: 0.5rem 1rem 0.5rem 2rem;
-    font-size: 1rem;
+  /* NAVBAR */
+  .main-navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    background: rgba(255, 255, 255, 0.97);
+    border-bottom: 1px solid #e8e8e8;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.025);
   }
 
+  .navbar-row {
+    min-height: 68px;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 20px;
+  }
+
+  /* EXPLORE */
+  .explore-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    min-width: 100px;
+  }
+
+  .explore-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    white-space: nowrap;
+    text-decoration: none;
+    color: #222;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: color 0.2s ease;
+  }
+
+  .explore-link i {
+    color: #fe424d;
+    font-size: 1.35rem;
+  }
+
+  .explore-link:hover {
+    color: #fe424d;
+  }
+
+  /* SEARCH */
+  .search-container {
+    flex: 1.5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .search-form {
+    width: 100%;
+    max-width: 440px;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 28px;
+    overflow: hidden;
+    background: #fff;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  .search-form:focus-within {
+    border-color: #bbb;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  }
+
+  .search-inp {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent;
+    padding: 0.6rem 1.1rem;
+    font-size: 0.92rem;
+  }
+
+  .search-inp::placeholder {
+    color: #888;
+  }
+
+  .search-btn {
+    height: 36px;
+    min-width: 38px;
+    margin-right: 5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    border: none;
+    border-radius: 22px;
+    background: #fe424d;
+    color: white;
+    padding: 0 13px;
+    white-space: nowrap;
+    transition: background 0.2s ease;
+  }
+
+  .search-btn:hover {
+    background: #e73540;
+    color: white;
+  }
+
+  /* DESKTOP MENU */
+  .desktop-menu {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .home-host-link {
+    color: #222;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    white-space: nowrap;
+    padding: 10px;
+    border-radius: 22px;
+    transition: background 0.2s ease;
+  }
+
+  .home-host-link:hover {
+    background: #f5f5f5;
+    color: #222;
+  }
+
+  .auth-link {
+    color: #333;
+    text-decoration: none;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    padding: 9px 10px;
+  }
+
+  .auth-link:hover {
+    color: #fe424d;
+  }
+
+  /* PROFILE BUTTON */
+  .profile-link {
+    width: 44px;
+    height: 44px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 9px;
+    border: 1px solid #ddd;
+    border-radius: 25px;
+    color: #333;
+    text-decoration: none;
+    background: #fff;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  .profile-link:hover {
+    border-color: #aaa;
+    box-shadow: 0 2px 7px rgba(0, 0, 0, 0.12);
+    color: #fe424d;
+  }
+
+  .profile-link .profile-user-icon {
+    font-size: 18px;
+  }
+
+  /* HAMBURGER */
+  .mobile-toggler {
+    display: none;
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ddd;
+    border-radius: 50%;
+    background: #fff;
+    color: #222;
+  }
+
+  .mobile-toggler:hover {
+    background: #f7f7f7;
+  }
+
+  /* MOBILE DROPDOWN */
+  .mobile-menu {
+    display: none;
+  }
+
+  /* TABLET AND MOBILE */
+  @media (max-width: 767px) {
+    .navbar-row {
+      min-height: 60px;
+      padding: 0 12px;
+      gap: 10px;
+    }
+
+    .explore-container {
+      flex: 0 0 auto;
+      min-width: auto;
+    }
+
+    .explore-link {
+      gap: 6px;
+      font-size: 0.88rem;
+    }
+
+    .explore-link i {
+      font-size: 1.2rem;
+    }
+
+    .search-container {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .search-form {
+      height: 40px;
+    }
+
+    .search-inp {
+      padding: 0.4rem 0.75rem;
+      font-size: 0.82rem;
+    }
+
+    .search-btn {
+      width: 32px;
+      min-width: 32px;
+      height: 32px;
+      padding: 0;
+      margin-right: 4px;
+    }
+
+    .search-btn span {
+      display: none;
+    }
+
+    .desktop-menu {
+      display: none;
+    }
+
+    .mobile-toggler {
+      display: inline-flex;
+    }
+
+    .mobile-menu {
+      display: block;
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 12px;
+      width: 250px;
+      max-width: calc(100vw - 24px);
+      background: #fff;
+      border: 1px solid #e5e5e5;
+      border-radius: 14px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.13);
+      padding: 8px;
+      z-index: 1050;
+    }
+
+    .mobile-menu:not(.show) {
+      display: none;
+    }
+
+    .mobile-menu .navbar-nav {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .mobile-menu .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 12px;
+      border-radius: 8px;
+      color: #333;
+      text-decoration: none;
+      font-size: 0.92rem;
+    }
+
+    .mobile-menu .nav-link:hover {
+      background: #f6f6f6;
+      color: #fe424d;
+    }
+
+    .mobile-menu .menu-divider {
+      height: 1px;
+      background: #eee;
+      margin: 6px 2px;
+    }
+
+    .mobile-menu .mobile-profile {
+      font-weight: 600;
+    }
+  }
+
+  /* SMALL PHONES */
+  @media (max-width: 380px) {
+    .navbar-row {
+      padding: 0 8px;
+      gap: 7px;
+    }
+
+    .explore-link {
+      font-size: 0.78rem;
+    }
+
+    .explore-link i {
+      font-size: 1.05rem;
+    }
+
+    .search-inp {
+      font-size: 0.75rem;
+      padding: 0.35rem 0.5rem;
+    }
+
+    .mobile-toggler {
+      width: 38px;
+      height: 38px;
+    }
+  }
+
+  /* Align navbar content with listing cards */
+  @media (min-width: 768px) {
+    .main-navbar>.container-fluid.navbar-row {
+      display: grid !important;
+      grid-template-columns: 1fr minmax(0, 440px) 1fr;
+      gap: 20px;
+      width: 100%;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 12px;
+      box-sizing: border-box;
+    }
+
+    .main-navbar .explore-container {
+      grid-column: 1;
+      justify-content: flex-start;
+      min-width: 0;
+    }
+
+    .main-navbar .search-container {
+      grid-column: 2;
+      justify-content: center;
+      min-width: 0;
+    }
+
+    .main-navbar .desktop-menu {
+      grid-column: 3;
+      justify-content: flex-end;
+      min-width: 0;
+    }
+
+    .main-navbar .mobile-toggler {
+      display: none !important;
+    }
+  }
 </style>
 
-<nav class="navbar navbar-expand-md bg-body-light border-bottom sticky-top">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="/listings"><i class="fa-regular fa-compass"></i></a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
+<nav class="main-navbar">
+  <div class="container-fluid navbar-row">
+
+    <!-- EXPLORE -->
+    <div class="explore-container">
+      <a class="explore-link" href="/listings">
+        <i class="fa-regular fa-compass"></i>
+        <span>Explore</span>
+      </a>
+    </div>
+
+    <!-- SEARCH -->
+    <div class="search-container">
+      <form class="search-form" role="search" action="/listings" method="GET">
+        <input class="search-inp" type="search" name="location" placeholder="Search destinations" aria-label="Search destinations">
+
+        <button class="search-btn" type="submit" aria-label="Search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <span>Search</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- DESKTOP MENU -->
+    <div class="desktop-menu">
+
+      <a class="home-host-link" href="/listings/new">
+        Airbnb your home
+      </a>
+
+      <% if (!currUser) { %>
+      <a class="auth-link" href="/signup">
+        <b>Sign up</b>
+      </a>
+
+      <a class="auth-link" href="/login">
+        <b>Log in</b>
+      </a>
+      <% } else { %>
+      <% if (currUser) { %>
+      <li class="nav-item">
+        <a class="nav-link" href="/wishlist">
+          <i class="fa-regular fa-heart"></i>
+        </a>
+      </li>
+      <% } %>
+
+      <a class="profile-link" href="/profile" aria-label="My profile" title="My Profile">
+        <i class="fa-solid fa-user profile-user-icon"></i>
+      </a>
+
+      <% } %>
+    </div>
+
+    <!-- MOBILE HAMBURGER -->
+    <button class="navbar-toggler mobile-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mobileNavbar" aria-controls="mobileNavbar" aria-expanded="false" aria-label="Toggle navigation">
+      <i class="fa-solid fa-bars"></i>
     </button>
-    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-      <div class="navbar-nav">
-        <a class="nav-link" href="/listings">Explore</a>
-      </div>
-      <div class="navbar-nav ms-auto">
-        <form class="d-flex" role="search">
-          <input class="form-control me-2 search-inp" type="search" placeholder="Search destinations"/>
-          <button class="btn search-btn" type="submit">
-           <i class="fa-solid fa-magnifying-glass"></i> Search</button>
-        </form>
-      </div>
-      <div class="navbar-nav ms-auto">
-        <a class="nav-link" href="/listings/new">Airbnb your home</a>
-        <% if(!currUser){ %>
-        <a class="nav-link" href="/signup"><b>Sign up</b></a>
-        <a class="nav-link" href="/login"><b>Log in</b></a>
-        <% } %>
-        <% if(currUser){ %>
-        <a class="nav-link" href="/logout"><b>Log out</b></a>
-        <% } %>
-      </div>
+
+  </div>
+
+  <!-- MOBILE DROPDOWN -->
+  <div class="collapse mobile-menu" id="mobileNavbar">
+    <div class="navbar-nav">
+
+      <a class="nav-link" href="/listings/new">
+        <i class="fa-solid fa-house"></i>
+        Airbnb your home
+      </a>
+
+      <div class="menu-divider"></div>
+
+      <% if (!currUser) { %>
+
+      <a class="nav-link" href="/signup">
+        <i class="fa-solid fa-user-plus"></i>
+        <b>Sign up</b>
+      </a>
+
+      <a class="nav-link" href="/login">
+        <i class="fa-solid fa-right-to-bracket"></i>
+        <b>Log in</b>
+      </a>
+
+      <% } else { %>
+      <% if (currUser) { %>
+      <li class="nav-item">
+        <a class="nav-link" href="/wishlist">
+          <i class="fa-regular fa-heart"></i> Wishlist
+        </a>
+      </li>
+      <% } %>
+
+      <a class="nav-link mobile-profile" href="/profile">
+        <i class="fa-solid fa-user"></i>
+        My Profile
+      </a>
+
+      <a class="nav-link" href="/logout">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        Log out
+      </a>
+
+      <% } %>
+
     </div>
   </div>
 </nav>

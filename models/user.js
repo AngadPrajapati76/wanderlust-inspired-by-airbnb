@@ -6,9 +6,17 @@ const userSchema = new Schema({
     email: {
         type: String,
         required: true,
+        lowercase: true,
+        trim: true
     }
 });
 
-userSchema.plugin(passportLocalMongoose); // automatically implement username,password,salting,hashing.
+// Prevent duplicate email addresses in MongoDB
+userSchema.index(
+    { email: 1 },
+    { unique: true }
+);
 
-module.exports = mongoose.model('User', userSchema);
+userSchema.plugin(passportLocalMongoose);
+
+module.exports = mongoose.model("User", userSchema);

@@ -1,0 +1,304 @@
+<% layout("/layouts/boilerplate") -%>
+
+<div class="container mt-5 mb-5 profile-container">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-7">
+
+      <div class="card shadow-sm border-0 profile-card">
+        <div class="card-body p-4 p-md-5">
+
+          <!-- Profile Header -->
+          <div class="text-center mb-4">
+            <div class="profile-avatar mx-auto mb-3">
+              <i class="fa-solid fa-user"></i>
+            </div>
+
+            <h2 class="mb-1">My Profile</h2>
+            <p class="text-muted mb-0">
+              Manage your Wanderlust account
+            </p>
+          </div>
+
+          <hr class="my-4">
+
+          <!-- Profile Information -->
+          <h5 class="section-heading mb-3">
+            <i class="fa-solid fa-user-pen me-2"></i>
+            Personal Information
+          </h5>
+
+          <form action="/profile" method="POST">
+
+            <div class="mb-3">
+              <label for="username" class="form-label">
+                Username
+              </label>
+
+              <input type="text" id="username" name="username" class="form-control" value="<%= user.username %>" minlength="3" maxlength="30" required autocomplete="username">
+            </div>
+
+            <div class="mb-4">
+              <label for="email" class="form-label">
+                Email Address
+              </label>
+
+              <input type="email" id="email" name="email" class="form-control" value="<%= user.email %>" required autocomplete="email">
+            </div>
+
+            <div class="d-flex flex-column flex-sm-row gap-2">
+              <button type="submit" class="btn btn-dark flex-grow-1 profile-save-btn">
+                <i class="fa-solid fa-floppy-disk me-2"></i>
+                Save Changes
+              </button>
+
+              <a href="/profile" class="btn btn-outline-secondary">
+                Cancel
+              </a>
+            </div>
+
+          </form>
+
+          <hr class="my-4">
+
+          <!-- Account Activities -->
+          <h5 class="section-heading mb-3">
+            <i class="fa-solid fa-user-gear me-2"></i>
+            Account & Activities
+          </h5>
+
+          <div class="profile-menu">
+
+            <a href="/bookings" class="profile-menu-item">
+              <span class="menu-icon">
+                <i class="fa-regular fa-calendar-check"></i>
+              </span>
+
+              <span class="menu-content">
+                <span class="menu-title">My Bookings</span>
+                <span class="menu-description">
+                  View your reservations and booking status
+                </span>
+              </span>
+
+              <i class="fa-solid fa-chevron-right menu-arrow"></i>
+            </a>
+
+            <a href="/notifications" class="profile-menu-item">
+              <span class="menu-icon">
+                <i class="fa-regular fa-bell"></i>
+              </span>
+
+              <span class="menu-content">
+                <span class="menu-title">My Notifications</span>
+                <span class="menu-description">
+                  View booking updates and notifications
+                </span>
+              </span>
+
+              <i class="fa-solid fa-chevron-right menu-arrow"></i>
+            </a>
+
+            <a href="/owner/reservations" class="profile-menu-item">
+              <span class="menu-icon">
+                <i class="fa-solid fa-calendar-days"></i>
+              </span>
+
+              <span class="menu-content">
+                <span class="menu-title">Owner Reservations</span>
+                <span class="menu-description">
+                  Manage reservations for your properties
+                </span>
+              </span>
+
+              <i class="fa-solid fa-chevron-right menu-arrow"></i>
+            </a>
+
+            <a href="/owner/dashboard" class="profile-menu-item">
+              <span class="menu-icon">
+                <i class="fa-solid fa-chart-line"></i>
+              </span>
+
+              <span class="menu-content">
+                <span class="menu-title">Owner Dashboard</span>
+                <span class="menu-description">
+                  View property performance and booking statistics
+                </span>
+              </span>
+
+              <i class="fa-solid fa-chevron-right menu-arrow"></i>
+            </a>
+
+            <a href="/listings" class="profile-menu-item">
+              <span class="menu-icon">
+                <i class="fa-solid fa-house"></i>
+              </span>
+
+              <span class="menu-content">
+                <span class="menu-title">Explore Properties</span>
+                <span class="menu-description">
+                  Discover places for your next stay
+                </span>
+              </span>
+
+              <i class="fa-solid fa-chevron-right menu-arrow"></i>
+            </a>
+
+            <a href="/logout" class="profile-menu-item">
+              <span class="menu-icon">
+                <i class="fa-solid fa-right-from-bracket"></i>
+              </span>
+
+              <span class="menu-content">
+                <span class="menu-title">Log Out</span>
+              </span>
+            </a>
+
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<style>
+  .profile-container {
+    max-width: 100%;
+  }
+
+  .profile-card {
+    border-radius: 18px;
+    overflow: hidden;
+  }
+
+  .profile-avatar {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: #f1f1f1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 38px;
+    color: #333;
+  }
+
+  .section-heading {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #222;
+  }
+
+  .form-control {
+    border-radius: 9px;
+    padding: 11px 13px;
+  }
+
+  .form-control:focus {
+    border-color: #555;
+    box-shadow: 0 0 0 0.15rem rgba(0, 0, 0, 0.1);
+  }
+
+  .profile-save-btn {
+    border-radius: 9px;
+    padding: 11px;
+  }
+
+  .profile-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .profile-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 15px;
+    border: 1px solid #e8e8e8;
+    border-radius: 12px;
+    color: #222;
+    text-decoration: none;
+    background: #fff;
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .profile-menu-item:hover {
+    background: #f8f8f8;
+    border-color: #cfcfcf;
+    transform: translateY(-1px);
+    color: #000;
+  }
+
+  .menu-icon {
+    width: 43px;
+    height: 43px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: #f1f1f1;
+    font-size: 18px;
+  }
+
+  .menu-content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  .menu-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  .menu-description {
+    color: #777;
+    font-size: 0.82rem;
+    line-height: 1.4;
+  }
+
+  .menu-arrow {
+    color: #888;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 576px) {
+    .profile-container {
+      margin-top: 20px !important;
+      padding-left: 12px;
+      padding-right: 12px;
+    }
+
+    .profile-card {
+      border-radius: 14px;
+    }
+
+    .profile-card .card-body {
+      padding: 22px !important;
+    }
+
+    .profile-menu-item {
+      padding: 12px;
+      gap: 11px;
+    }
+
+    .menu-icon {
+      width: 38px;
+      height: 38px;
+      font-size: 16px;
+    }
+
+    .menu-description {
+      font-size: 0.76rem;
+    }
+  }
+</style>

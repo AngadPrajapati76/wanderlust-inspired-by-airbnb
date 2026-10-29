@@ -1,127 +1,1069 @@
-<% layout("/layouts/boilerplate") %>
-<!-- <form action="/listings/new" method="get">
-        <button>Create New</button>
-    </form> -->
+<% layout("/layouts/boilerplate") -%>
+
+<%
+    const currentQuery = typeof query !== "undefined" ? query : {};
+
+    function filterUrl(changes = {}, remove = []) {
+        const urlParams = new URLSearchParams(currentQuery);
+
+        remove.forEach(key => {
+            urlParams.delete(key);
+        });
+
+        Object.keys(changes).forEach(key => {
+            urlParams.set(key, changes[key]);
+        });
+
+        const queryString = urlParams.toString();
+
+        return queryString
+            ? `/listings?${queryString}`
+            : "/listings";
+    }
+%>
 
 <style>
-  #filters {
-    align-items: center;
+  /* Category Bar */
+  .category-bar {
+    width: 100%;
+    min-height: 55px;
     display: flex;
-    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 0.2rem;
+    position: relative;
+    z-index: 10;
   }
 
-  .filter {
-    text-align: center;
-    margin-right: 2rem;
-    margin-top: 1rem;
-    opacity: 0.6;
+  /* Desktop Categories */
+  .desktop-categories {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
   }
 
-  .filter:hover {
-    opacity: 1;
+  .category-item {
+    text-decoration: none;
+    color: inherit;
     cursor: pointer;
   }
 
-  .filter p {
-    font-size: 0.7rem;
-  }
-  .tax-info{
-    display: none;
-  }
-  .tax-toggle{
-    border: 1px solid black;
-    border-radius: 1rem;
-    height: 2.5rem;
-    padding: 0.9rem;
-    margin-left: 1rem;
+  #filters {
+    flex: 1;
+    min-width: 0;
     display: flex;
     align-items: center;
+    gap: 1.5rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    padding: 0.3rem 0.5rem;
+    scrollbar-width: none;
+  }
+
+  #filters::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Desktop Category */
+  .filter {
+    position: relative;
+    min-width: 60px;
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #717171;
+    cursor: pointer;
+    padding-bottom: 0.15rem;
+    text-decoration: none;
+  }
+
+  .filter i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 20px;
+    font-size: 1rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .filter p {
+    width: 100%;
+    margin: 0;
+    font-size: 0.72rem;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .filter:hover {
+    color: #fe424d;
+  }
+
+  .filter::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 0;
+    height: 2px;
+    background-color: #fe424d;
+    transform: translateX(-50%);
+    transition: width 0.25s ease;
+  }
+
+  .filter:hover::after {
+    width: 60%;
+  }
+
+  /* Category Arrows */
+  .category-arrow {
+    flex: 0 0 auto;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ddd;
+    border-radius: 50%;
+    background-color: white;
+    color: #333;
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+  }
+
+  .category-arrow:hover {
+    background-color: #f7f7f7;
+  }
+
+  .category-arrow i {
+    font-size: 0.75rem;
+  }
+
+  /* Tax Toggle */
+  .tax-toggle {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    padding-right: 0.5rem;
+    white-space: nowrap;
+  }
+
+  .tax-toggle .form-check {
+    margin-bottom: 0;
+  }
+
+  .tax-toggle .form-check-label {
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+
+  .tax-toggle .form-check-input {
+    cursor: pointer;
+  }
+
+  /* Mobile UI - Hidden on Desktop */
+  .mobile-category-btn,
+  .mobile-categories {
+    display: none;
+  }
+
+  /* Mobile Category Item */
+  .mobile-filter {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 0.8rem;
+    color: #717171;
+    cursor: pointer;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .mobile-filter i {
+    width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .mobile-filter:hover {
+    color: #fe424d;
+  }
+
+  .mobile-filter::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 2px;
+    width: 0;
+    height: 2px;
+    background-color: #fe424d;
+    transform: translateX(-50%);
+    transition: width 0.25s ease;
+  }
+
+  .mobile-filter:hover::after {
+    width: 70%;
+  }
+
+  /* Listings */
+  .listings-container {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .listing-link {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .listing-link:hover {
+    color: inherit;
+  }
+
+  .listing-card {
+    border: none;
+    background: transparent;
+    margin-bottom: 1rem;
+  }
+
+  .listing-image {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 1rem;
+    display: block;
+  }
+
+  .listing-card .card-body {
+    padding: 0.5rem 0;
+  }
+
+  .listing-card .card-title {
+    margin-bottom: 0.2rem;
+  }
+
+  .tax-info {
+    display: none;
+  }
+
+  /* Wishlist heart button */
+  .listing-card-wrapper {
+    min-width: 0;
+  }
+
+  .listing-card {
+    position: relative;
+  }
+
+  .wishlist-btn {
+    position: absolute;
+    top: 0.65rem;
+    right: 0.65rem;
+    z-index: 5;
+    width: 2.25rem;
+    height: 2.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.95);
+    color: #333;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: transform 0.18s ease, color 0.18s ease, background 0.18s ease;
+  }
+
+  .wishlist-btn:hover {
+    transform: scale(1.08);
+    background: #fff;
+  }
+
+  .wishlist-btn i {
+    font-size: 1.05rem;
+    pointer-events: none;
+  }
+
+  .wishlist-btn.saved {
+    color: #fe424d;
+  }
+
+  .wishlist-btn:disabled {
+    cursor: wait;
+    opacity: 0.65;
+  }
+
+  /* Tablet */
+  @media (min-width: 768px) and (max-width: 1100px) {
+    .category-bar {
+      gap: 0.7rem;
+    }
+
+    #filters {
+      gap: 1.2rem;
+    }
+
+    .filter {
+      min-width: 60px;
+    }
+
+    .filter i {
+      font-size: 1rem;
+    }
+
+    .filter p {
+      font-size: 0.7rem;
+    }
+
+    .category-arrow {
+      width: 30px;
+      height: 30px;
+    }
+
+    .tax-toggle {
+      padding-right: 0;
+    }
+
+    .tax-toggle .form-check-label {
+      font-size: 0.75rem;
+    }
+
+    .listings-container {
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
+    }
+
+    .listing-image {
+      height: 16rem;
+    }
+  }
+
+  /* Mobile */
+  @media (max-width: 767px) {
+    .category-bar {
+      min-height: 55px;
+      padding: 0.5rem 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: nowrap;
+      position: sticky;
+      top: 60px;
+      z-index: 1020;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .desktop-categories {
+      display: none;
+    }
+
+    .mobile-category-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      background-color: white;
+      color: #222;
+      padding: 0.45rem 0.8rem;
+      font-size: 0.85rem;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .mobile-category-btn:hover {
+      background-color: #f7f7f7;
+    }
+
+    .mobile-category-btn i {
+      font-size: 0.75rem;
+    }
+
+    .tax-toggle {
+      display: flex;
+      align-items: center;
+      margin-left: auto;
+      padding-right: 0;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .tax-toggle .form-check-label {
+      font-size: 0.8rem;
+    }
+
+    .tax-toggle .form-check-input {
+      transform: scale(0.85);
+    }
+
+    /* Mobile Category Overlay */
+    .mobile-categories {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      display: none;
+      grid-template-columns: 1fr 1fr;
+      padding: 0.5rem 0;
+      background: rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      border: 1px solid rgba(221, 221, 221, 0.7);
+      border-radius: 0 0 12px 12px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
+      overflow: hidden;
+      z-index: 1050;
+    }
+
+    .mobile-categories.show {
+      display: grid;
+    }
+
+    .mobile-filter {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.65rem 1rem;
+      font-size: 0.85rem;
+      color: #333;
+      cursor: pointer;
+    }
+
+    .mobile-filter:hover {
+      color: #fe424d;
+      background-color: rgba(247, 247, 247, 0.45);
+    }
+
+    .mobile-filter i {
+      width: 20px;
+      text-align: center;
+      color: #555;
+    }
+
+    .listings-container {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+
+    .listing-image {
+      height: 14rem;
+    }
+  }
+
+  /* Small Mobile */
+  @media (max-width: 450px) {
+    .category-bar {
+      padding: 0.5rem;
+    }
+
+    .mobile-category-btn {
+      font-size: 0.75rem;
+      padding: 0.4rem 0.7rem;
+    }
+
+    .tax-toggle .form-check-label {
+      font-size: 0.68rem;
+    }
+
+    .tax-toggle .form-check-input {
+      width: 2em;
+    }
+
+    .mobile-categories {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .mobile-filter {
+      padding: 0.65rem 0.8rem;
+      font-size: 0.8rem;
+    }
+
+    .listing-image {
+      height: 14rem;
+    }
+  }
+
+  .filters-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .price-dropdown {
+    position: relative;
+  }
+
+  .price-dropdown-btn {
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 20px;
+    padding: 8px 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 14px;
+  }
+
+  .price-dropdown-btn:hover {
+    border-color: #222;
+  }
+
+  .price-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 190px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+    z-index: 1000;
+  }
+
+  .price-dropdown-menu.show {
+    display: block;
+  }
+
+  .price-option {
+    display: block;
+    text-decoration: none;
+    color: #222;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+  }
+
+  .price-option:hover {
+    background: #f5f5f5;
+  }
+
+
+  /* Unified mobile filters panel */
+  .mobile-filters-panel {
+    display: none;
+  }
+
+  .mobile-filters-panel.show {
+    display: block;
+  }
+
+  .mobile-panel-section h6 {
+    margin: 0 0 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #222;
+  }
+
+  .mobile-filter-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+  }
+
+  .mobile-filter-grid .mobile-filter {
+    min-width: 0;
+    padding: 10px 8px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    color: #333;
+    text-decoration: none;
+  }
+
+  .mobile-filter-grid .mobile-filter:hover {
+    color: #fe424d;
+    background: #f7f7f7;
+  }
+
+  .mobile-filter-grid .mobile-filter::after {
+    display: none;
+  }
+
+  .mobile-filter-grid .mobile-filter i {
+    width: 20px;
+    color: #555;
+  }
+
+  .mobile-price-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+  }
+
+  .mobile-price-options .price-option {
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 0.82rem;
+    text-decoration: none;
+    color: #333;
+  }
+
+  .mobile-price-options .price-option:hover {
+    background: #f7f7f7;
+    border-color: #bbb;
+  }
+
+
+
+  @media (max-width: 767px) {
+    .mobile-filters-panel {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 8px;
+      right: 8px;
+      width: auto;
+      max-height: 70vh;
+      overflow-y: auto;
+      padding: 16px;
+      background: #fff;
+      border: 1px solid #e5e5e5;
+      border-radius: 14px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+      z-index: 1050;
+    }
+
+    .mobile-filters-panel hr {
+      border-color: #e8e8e8;
+      margin: 14px 0;
+    }
+
+    /* Mobile row: Filters on the left, tax switch on the far right */
+    .category-bar {
+      justify-content: space-between;
+    }
+
+    .filters-right {
+      display: flex;
+      align-items: center;
+      margin-left: auto;
+      gap: 0;
+      flex: 0 0 auto;
+    }
+
+    .filters-right .price-dropdown {
+      display: none !important;
+    }
+
+    .filters-right .tax-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      margin: 0;
+      padding: 0;
+      gap: 7px;
+      white-space: nowrap;
+    }
+
+    /* Keep the switch compact so it sits in the marked area beside Filters */
+    .filters-right .tax-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      white-space: nowrap;
+    }
+
+    .filters-right .tax-toggle span {
+      display: inline !important;
+      font-size: 12px;
+      color: #222;
+    }
+
+    .filters-right .tax-toggle .form-check {
+      margin: 0;
+      padding: 0;
+      flex-shrink: 0;
+    }
+
+    .filters-right .tax-toggle .form-check-input {
+      display: block;
+      width: 2.4em;
+      height: 1.25em;
+      margin: 0;
+      cursor: pointer;
+    }
+
+    .filters-right .tax-toggle .form-check {
+      margin: 0;
+      padding: 0;
+    }
+
+    .filters-right .tax-toggle .form-check-input {
+      display: block;
+      width: 2.4em;
+      height: 1.25em;
+      margin: 0;
+      cursor: pointer;
+    }
+
+    .mobile-category-btn {
+      display: flex;
+      flex: 0 0 auto;
+    }
   }
 </style>
 
-<div id="filters">
-  <div class="filter">
-    <div><i class="fa-solid fa-fire"></i></div>
-    <p>Trending</p>
-  </div>
-  <div class="filter">
-    <div><i class="fa-solid fa-bed"></i></div>
-    <p>Rooms</p>
-  </div>
-  <div class="filter">
-    <div><i class="fa-solid fa-mountain-city"></i></div>
-    <p>Iconic Cities</p>
-  </div>
-  <div class="filter">
-    <div><i class="fa-solid fa-mountain"></i></div>
-    <p>Mountains</p>
-  </div>
-  <div class="filter">
-    <div><i class="fa-brands fa-fort-awesome"></i></div>
-    <p>Castles</p>
-  </div>
-  <div class="filter">
-    <div><i class="fa-solid fa-person-swimming"></i></div>
-    <p>Amazing pools</p>
-  </div>
-  <div class="filter">
-    <div><i class="fa-solid fa-campground"></i></div>
-    <p>Camping</p>
-  </div>
-  <div class="filter">
-    <div><i class="fa-solid fa-cow"></i></div>
-    <p>Farms</p>
-  </div>
-  <div class="filter">
-    <div><i class="fa-regular fa-snowflake"></i></div>
-    <p>Arctic</p>
-  </div>
-  <div class="filter">
-    <div><i class="fa-solid fa-palette"></i></div>
-    <p>Creative spaces</p>
-  </div>
+<div class="listings-container">
+  <!-- Category Bar -->
+  <div class="category-bar">
 
-  <div class="tax-toggle">
-    <div class="form-check-reverse form-switch">
-      <input class="form-check-input" type="checkbox" role="switch" id="switchCheckDefault">
-      <label class="form-check-label" for="switchCheckDefault">Dispaly total after taxes</label>
+    <!-- Unified Mobile Filters Button -->
+    <button class="mobile-category-btn" id="mobileFiltersBtn" type="button" onclick="toggleMobileFilters()" aria-expanded="false" aria-controls="mobileFiltersPanel">
+      <i class="fa-solid fa-sliders"></i>
+      <span>Filters</span>
+      <i id="mobile-filter-arrow" class="fa-solid fa-chevron-down"></i>
+    </button>
+
+    <!-- Desktop / Tablet Categories -->
+    <div class="desktop-categories">
+      <button id="category-left-arrow" class="category-arrow" type="button" onclick="scrollCategories(-1)" aria-label="Previous categories">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+
+      <div id="filters">
+        <a href="<%= filterUrl({ category: 'Trending' }) %>" class="filter">
+          <i class="fa-solid fa-fire"></i>
+          <p>Trending</p>
+        </a>
+
+        <a href="<%= filterUrl({ category: 'Rooms' }) %>" class="filter">
+          <i class="fa-solid fa-bed"></i>
+          <p>Rooms</p>
+        </a>
+
+        <a href="<%= filterUrl({ category: 'Iconic Cities' }) %>" class="filter">
+          <i class="fa-solid fa-city"></i>
+          <p>Iconic Cities</p>
+        </a>
+
+        <a href="<%= filterUrl({ category: 'Mountains' }) %>" class="filter">
+          <i class="fa-solid fa-mountain"></i>
+          <p>Mountains</p>
+        </a>
+
+        <a href="<%= filterUrl({ category: 'Castles' }) %>" class="filter">
+          <i class="fa-solid fa-chess-rook"></i>
+          <p>Castles</p>
+        </a>
+
+        <a href="<%= filterUrl({ category: 'Amazing pools' }) %>" class="filter">
+          <i class="fa-solid fa-person-swimming"></i>
+          <p>Amazing pools</p>
+        </a>
+
+        <a href="<%= filterUrl({ category: 'Camping' }) %>" class="filter">
+          <i class="fa-solid fa-campground"></i>
+          <p>Camping</p>
+        </a>
+
+        <a href="<%= filterUrl({ category: 'Farms' }) %>" class="filter">
+          <i class="fa-solid fa-wheat-awn"></i>
+          <p>Farms</p>
+        </a>
+
+        <a href="<%= filterUrl({ category: 'Arctic' }) %>" class="filter">
+          <i class="fa-solid fa-snowflake"></i>
+          <p>Arctic</p>
+        </a>
+
+        <a href="<%= filterUrl({ category: 'Creative spaces' }) %>" class="filter">
+          <i class="fa-solid fa-palette"></i>
+          <p>Creative spaces</p>
+        </a>
+      </div>
+
+      <button id="category-right-arrow" class="category-arrow" type="button" onclick="scrollCategories(1)" aria-label="Next categories">
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
+    </div>
+    <!-- Unified Mobile Filters Panel -->
+    <div id="mobileFiltersPanel" class="mobile-filters-panel">
+      <div class="mobile-panel-section">
+        <h6><i class="fa-solid fa-layer-group me-2"></i>Categories</h6>
+        <div class="mobile-filter-grid">
+          <a href="<%= filterUrl({ category: 'Trending' }) %>" class="mobile-filter"><i class="fa-solid fa-fire"></i><span>Trending</span></a>
+          <a href="<%= filterUrl({ category: 'Rooms' }) %>" class="mobile-filter"><i class="fa-solid fa-bed"></i><span>Rooms</span></a>
+          <a href="<%= filterUrl({ category: 'Iconic Cities' }) %>" class="mobile-filter"><i class="fa-solid fa-city"></i><span>Iconic Cities</span></a>
+          <a href="<%= filterUrl({ category: 'Mountains' }) %>" class="mobile-filter"><i class="fa-solid fa-mountain"></i><span>Mountains</span></a>
+          <a href="<%= filterUrl({ category: 'Castles' }) %>" class="mobile-filter"><i class="fa-solid fa-chess-rook"></i><span>Castles</span></a>
+          <a href="<%= filterUrl({ category: 'Amazing pools' }) %>" class="mobile-filter"><i class="fa-solid fa-person-swimming"></i><span>Amazing pools</span></a>
+          <a href="<%= filterUrl({ category: 'Camping' }) %>" class="mobile-filter"><i class="fa-solid fa-campground"></i><span>Camping</span></a>
+          <a href="<%= filterUrl({ category: 'Farms' }) %>" class="mobile-filter"><i class="fa-solid fa-wheat-awn"></i><span>Farms</span></a>
+          <a href="<%= filterUrl({ category: 'Arctic' }) %>" class="mobile-filter"><i class="fa-solid fa-snowflake"></i><span>Arctic</span></a>
+          <a href="<%= filterUrl({ category: 'Creative spaces' }) %>" class="mobile-filter"><i class="fa-solid fa-palette"></i><span>Creative spaces</span></a>
+          <a href="<%= filterUrl({}, ['category']) %>" class="mobile-filter"><i class="fa-solid fa-border-all"></i><span>All categories</span></a>
+        </div>
+      </div>
+
+      <hr>
+
+      <div class="mobile-panel-section">
+        <h6><i class="fa-solid fa-tag me-2"></i>Price per night</h6>
+        <div class="mobile-price-options">
+          <a href="<%= filterUrl({}, ['minPrice', 'maxPrice']) %>" class="price-option">All prices</a>
+          <a href="<%= filterUrl({ maxPrice: '1000' }, ['minPrice', 'maxPrice']) %>" class="price-option">Under ₹1,000</a>
+          <a href="<%= filterUrl({ minPrice: '1000', maxPrice: '2000' }, ['minPrice', 'maxPrice']) %>" class="price-option">₹1,000 – ₹2,000</a>
+          <a href="<%= filterUrl({ minPrice: '2000', maxPrice: '3000' }, ['minPrice', 'maxPrice']) %>" class="price-option">₹2,000 – ₹3,000</a>
+          <a href="<%= filterUrl({ minPrice: '3000' }, ['minPrice', 'maxPrice']) %>" class="price-option">Above ₹3,000</a>
+        </div>
+      </div>
+
+      <hr>
+
+    </div>
+
+    <!-- Tax Toggle -->
+    <div class="filters-right">
+      <div class="price-dropdown">
+        <button class="price-dropdown-btn" type="button" onclick="togglePriceDropdown()">
+          <i class="fa-solid fa-tag"></i>
+          Price
+          <i class="fa-solid fa-chevron-down"></i>
+        </button>
+
+        <div id="priceDropdown" class="price-dropdown-menu">
+
+          <a href="<%= filterUrl({}, ['minPrice', 'maxPrice']) %>" class="price-option">
+            All prices
+          </a>
+
+          <a href="<%= filterUrl({ maxPrice: '1000' }, ['minPrice', 'maxPrice']) %>" class="price-option">
+            Under 1000
+          </a>
+
+          <a href="<%= filterUrl({ minPrice: '1000', maxPrice: '2000' }, ['minPrice', 'maxPrice']) %>" class="price-option">
+            1000 - 2000
+          </a>
+
+          <a href="<%= filterUrl({ minPrice: '2000', maxPrice: '3000' }, ['minPrice', 'maxPrice']) %>" class="price-option">
+            2000 - 3000
+          </a>
+
+          <a href="<%= filterUrl({ minPrice: '3000' }, ['minPrice', 'maxPrice']) %>" class="price-option">
+            Above 3000
+          </a>
+
+        </div>
+      </div>
+
+      <div class="tax-toggle">
+        <span style="margin-right: 5px;">Price Including Taxes</span>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="taxSwitch" aria-label="Price Including Taxes">
+        </div>
+      </div>
     </div>
   </div>
+  <!-- Listings -->
+  <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3 mt-0">
+    <% for (let listing of allListings) { %>
+      <div class="col listing-card-wrapper">
+        <div class="card listing-card">
+          <button
+            type="button"
+            class="wishlist-btn"
+            data-listing-id="<%= listing._id %>"
+            data-authenticated="<%= typeof currUser !== 'undefined' && currUser ? 'true' : 'false' %>"
+            aria-label="Add <%= listing.title %> to wishlist"
+            aria-pressed="false"
+            title="Add to wishlist">
+            <i class="fa-regular fa-heart" aria-hidden="true"></i>
+          </button>
 
-</div>
+          <a href="/listings/<%= listing._id %>" class="listing-link">
+            <img
+              src="<%= listing.image && listing.image.url ? listing.image.url : '/images/placeholder.jpg' %>"
+              class="card-img-top listing-image"
+              alt="<%= listing.title %>"
+              loading="lazy">
 
-<div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 mt-3">
-  <% for(let listing of allListings) { %>
-  <a href="/listings/<%= listing._id %>" class="listing-link">
-    <div class="card col listing-card">
-      <img src="<%= listing.image.url %>" class="card-img-top" alt="Listing_image" style="height: 17.5rem;">
-      <div class="card-img-overlay">
-
+            <div class="card-body">
+              <h6 class="card-title"><%= listing.title %></h6>
+              <p class="card-text">
+                ₹<%= Number(listing.price || 0).toLocaleString("en-IN") %>/night
+                <i class="tax-info">&nbsp;&nbsp;+18% GST</i>
+              </p>
+            </div>
+          </a>
+        </div>
       </div>
-      <div class="card-body">
-        <p class="card-text"><b>
-            <%= listing.title %>
-          </b> <br>
-          &#8377;<%= listing.price.toLocaleString("en-IN") %>/night 
-          <i class="tax-info"> &nbsp; &nbsp; +18% GST</i>
-        </p>
-      </div>
-    </div>
-  </a>
-  <% } %>
-</div>
+    <% } %>
+  </div>
 
-<script>
-  let taxSwitch = document.getElementById("switchCheckDefault");
-  taxSwitch.addEventListener("click", () => {
-    let taxInfo = document.getElementsByClassName("tax-info");
-    for(info of taxInfo){
-      if(info.style.display != "inline"){
-        info.style.display = "inline";
-      }else{
-        info.style.display = "none";
-      }
-      
+
+  <script>
+    /* Desktop Category Arrows */
+    function updateCategoryArrows() {
+      const filters = document.getElementById("filters");
+      const leftArrow = document.getElementById("category-left-arrow");
+      const rightArrow = document.getElementById("category-right-arrow");
+
+      if (!filters || !leftArrow || !rightArrow) return;
+
+      const maxScroll = filters.scrollWidth - filters.clientWidth;
+      const currentScroll = filters.scrollLeft;
+
+      leftArrow.style.display = currentScroll > 5 ? "flex" : "none";
+      rightArrow.style.display = currentScroll < maxScroll - 5 ? "flex" : "none";
     }
-  })
-</script>
+
+    function scrollCategories(direction) {
+      const filters = document.getElementById("filters");
+
+      if (!filters) return;
+
+      filters.scrollBy({
+        left: direction * 250,
+        behavior: "smooth"
+      });
+    }
+
+    const filters = document.getElementById("filters");
+
+    if (filters) {
+      filters.addEventListener("scroll", updateCategoryArrows);
+      window.addEventListener("resize", updateCategoryArrows);
+      updateCategoryArrows();
+    }
+
+    /* Mobile Categories */
+    function toggleMobileFilters() {
+      const panel = document.getElementById("mobileFiltersPanel");
+      const button = document.getElementById("mobileFiltersBtn");
+      const arrow = document.getElementById("mobile-filter-arrow");
+
+      if (!panel || !button || !arrow) return;
+
+      const isOpen = panel.classList.toggle("show");
+
+      button.setAttribute("aria-expanded", String(isOpen));
+
+      arrow.classList.toggle("fa-chevron-down", !isOpen);
+      arrow.classList.toggle("fa-chevron-up", isOpen);
+    }
+
+    /* Tax Toggle */
+    const taxSwitch = document.getElementById("taxSwitch");
+
+    if (taxSwitch) {
+      taxSwitch.addEventListener("change", function() {
+        const taxInfo = document.querySelectorAll(".tax-info");
+
+        taxInfo.forEach(function(element) {
+          element.style.display = taxSwitch.checked ? "inline" : "none";
+        });
+      });
+    }
+
+
+    /* Wishlist buttons */
+    document.addEventListener("DOMContentLoaded", function () {
+      const wishlistButtons = document.querySelectorAll(".wishlist-btn");
+
+      function setWishlistButton(button, saved) {
+        const icon = button.querySelector("i");
+        button.classList.toggle("saved", saved);
+        button.setAttribute("aria-pressed", String(saved));
+        button.setAttribute(
+          "aria-label",
+          saved ? "Remove from wishlist" : "Add to wishlist"
+        );
+        button.title = saved ? "Remove from wishlist" : "Add to wishlist";
+
+        if (icon) {
+          icon.classList.toggle("fa-solid", saved);
+          icon.classList.toggle("fa-regular", !saved);
+          icon.classList.toggle("fa-heart", true);
+        }
+      }
+
+      // Only fetch saved IDs for signed-in users.
+      const signedInButtons = Array.from(wishlistButtons).filter(
+        button => button.dataset.authenticated === "true"
+      );
+
+      if (signedInButtons.length > 0) {
+        fetch("/wishlist/ids", {
+          headers: { "Accept": "application/json" }
+        })
+          .then(response => {
+            if (!response.ok) throw new Error("Could not load wishlist");
+            return response.json();
+          })
+          .then(data => {
+            // Supports either an array response or { ids: [...] }.
+            const ids = Array.isArray(data) ? data : (data.ids || data.listingIds || []);
+            const savedIds = new Set(ids.map(item => String(item._id || item)));
+            signedInButtons.forEach(button => {
+              setWishlistButton(button, savedIds.has(String(button.dataset.listingId)));
+            });
+          })
+          .catch(error => console.error("Wishlist load failed:", error));
+      }
+
+      wishlistButtons.forEach(button => {
+        button.addEventListener("click", async function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+
+          if (button.dataset.authenticated !== "true") {
+            window.location.href = "/login";
+            return;
+          }
+
+          const listingId = button.dataset.listingId;
+          if (!listingId) return;
+
+          button.disabled = true;
+          try {
+            const response = await fetch(`/wishlist/${encodeURIComponent(listingId)}/toggle`, {
+              method: "POST",
+              headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+              }
+            });
+
+            if (response.status === 401 || response.status === 403) {
+              window.location.href = "/login";
+              return;
+            }
+
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) {
+              throw new Error(data.message || "Unable to update wishlist");
+            }
+
+            // The route should return { saved: true } or { saved: false }.
+            const saved = typeof data.saved === "boolean"
+              ? data.saved
+              : typeof data.isSaved === "boolean"
+                ? data.isSaved
+                : !button.classList.contains("saved");
+
+            setWishlistButton(button, saved);
+          } catch (error) {
+            console.error("Wishlist update failed:", error);
+            alert(error.message || "Could not update wishlist. Please try again.");
+          } finally {
+            button.disabled = false;
+          }
+        });
+      });
+    });
+
+  </script>

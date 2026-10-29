@@ -1,0 +1,87 @@
+<% layout("/layouts/boilerplate") -%>
+
+<div class="container mt-4 mb-5">
+  <h2 class="mb-4">My Bookings</h2>
+
+  <% if (bookings.length===0) { %>
+  <div class="alert alert-info">
+    You haven't booked any properties yet.
+  </div>
+
+  <a href="/listings" class="btn btn-dark">
+    Explore Properties
+  </a>
+  <% } else { %>
+
+  <div class="row">
+    <% bookings.forEach(booking=> { %>
+    <div class="col-md-6 col-lg-4 mb-4">
+      <div class="card h-100 shadow-sm">
+
+        <% if (booking.listing) { %>
+        <img src="<%= booking.listing.image.url %>" class="card-img-top" alt="<%= booking.listing.title %>" style="height: 220px; object-fit: cover;">
+
+        <div class="card-body">
+          <h5 class="card-title">
+            <%= booking.listing.title %>
+          </h5>
+
+          <p class="text-muted">
+            <%= booking.listing.location %>
+          </p>
+
+          <a href="/listings/<%= booking.listing._id %>" class="btn btn-outline-dark btn-sm mb-3">
+            View Property
+          </a>
+        </div>
+        <% } else { %>
+        <div class="card-body">
+          <h5>Property no longer available</h5>
+        </div>
+        <% } %>
+
+        <div class="card-body border-top">
+          <p>
+            <strong>Check-in:</strong>
+            <%= new Date(booking.checkIn).toLocaleDateString("en-IN") %>
+          </p>
+
+          <p>
+            <strong>Check-out:</strong>
+            <%= new Date(booking.checkOut).toLocaleDateString("en-IN") %>
+          </p>
+
+          <p>
+            <strong>Nights:</strong>
+            <%= Math.round( (new Date(booking.checkOut) - new Date(booking.checkIn)) / (1000 * 60 * 60 * 24) ) %>
+          </p>
+
+          <h5>
+            Total: ₹<%= booking.totalPrice %>
+          </h5>
+
+
+          <p class="mb-3">
+            <strong>Status:</strong>
+            <span class="badge <%= booking.status === 'confirmed' ? 'bg-success' : 'bg-secondary' %>">
+              <%= booking.status %>
+            </span>
+          </p>
+
+          <% if (booking.status==="confirmed" ) { %>
+          <form action="/bookings/<%= booking._id %>/cancel" method="POST" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+            <button type="submit" class="btn btn-outline-danger btn-sm">
+              Cancel Booking
+            </button>
+          </form>
+          <% } %>
+
+        </div>
+
+      </div>
+    </div>
+    <% }); %>
+  </div>
+
+  <% } %>
+</div>
